@@ -3,11 +3,12 @@ package com.ems.publictransport.rest.util;
 import de.schildbach.pte.AbstractNavitiaProvider;
 import de.schildbach.pte.NetworkProvider;
 import okhttp3.HttpUrl;
+import org.springframework.stereotype.Service;
 
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 
-
+@Service
 public class ProviderUtil {
 
 

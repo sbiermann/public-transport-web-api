@@ -1,4 +1,3 @@
-
 spring:
   lifecycle:
     timeout-per-shutdown-phase: 20s
@@ -16,7 +15,7 @@ server:
   servlet:
     contextPath: /${spring.application.name}
   forward-headers-strategy: framework
-  max-http-header-size: 32KB
+  max-http-request-header-size: 32KB
 
 management:
   endpoints:
@@ -33,12 +32,11 @@ management:
       show-values: when_authorized
   health:
     ldap:
-      enabled: fals
+      enabled: false
 info:
   name: ${spring.application.name}
-  description: Genex Upload Export Files to SFTPs
+  description: Public Transport REST API
   version: dev-version
-  namespace: genex-service
 
 providerkey:
    navitia:

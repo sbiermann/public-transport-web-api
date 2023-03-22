@@ -36,17 +36,16 @@ import de.schildbach.pte.exception.AbstractHttpException;
 public class DepartureController {
     private DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mmZ");
 
-    private static int counter = 0;
-
-
-    private String thingspeakKey;
-
-    private String thingspeakChannel;
-
     private ProviderUtil providerUtil;
 
+    public DepartureController(ProviderUtil providerUtil) {
+        this.providerUtil = providerUtil;
+    }
+
     @RequestMapping
-    public ResponseEntity departure( @RequestParam("from") String from, @RequestParam(value = "provider", defaultValue = "VAG", required = false) String providerName, @RequestParam(value = "limit", defaultValue = "10", required = false) int limit) throws IOException {
+    public ResponseEntity departure( @RequestParam("from") String from,
+                                     @RequestParam(value = "provider", defaultValue = "Nvbw") String providerName,
+                                     @RequestParam(value = "limit", defaultValue = "10") int limit) throws IOException {
         try {
             NetworkProvider provider = getNetworkProvider(providerName);
             if (provider == null)
@@ -71,13 +70,11 @@ public class DepartureController {
         }
         catch(SocketTimeoutException e){
             return ResponseEntity.status(HttpStatus.GATEWAY_TIMEOUT).body("Timeout, Provider " + providerName + " not responding in 15 seconds");
-        }finally {
-            counter++;
         }
     }
 
     @RequestMapping(value = "FHEM", method = RequestMethod.GET)
-    public ResponseEntity departureFHEM(@RequestParam(value = "from") String from, @RequestParam(value = "provider", defaultValue = "VAG") String providerName,
+    public ResponseEntity departureFHEM(@RequestParam(value = "from") String from, @RequestParam(value = "provider", defaultValue = "Nvbw") String providerName,
                                   @RequestParam(value = "limit", defaultValue = "10") int limit) throws IOException {
         try {
             NetworkProvider provider = getNetworkProvider(providerName);
@@ -114,9 +111,6 @@ public class DepartureController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Called url: " + e.getUrl() + "\r\nResponse: " + e.getBodyPeek());
         }catch(SocketTimeoutException e){
             return ResponseEntity.status(HttpStatus.GATEWAY_TIMEOUT).body("Timeout, Provider " + providerName + " not responding in 15 seconds");
-        }
-        finally {
-            counter++;
         }
 
     }

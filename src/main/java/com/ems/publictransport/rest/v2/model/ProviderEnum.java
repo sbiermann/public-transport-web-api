@@ -10,8 +10,6 @@ import de.schildbach.pte.BvgProvider;
 import de.schildbach.pte.KvvProvider;
 import de.schildbach.pte.NetworkProvider;
 import de.schildbach.pte.VbbProvider;
-import de.schildbach.pte.VmsProvider;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -21,7 +19,7 @@ import java.lang.reflect.InvocationTargetException;
  */
 public enum ProviderEnum {
 
-    KVV(KvvProvider.class), BVG(BvgProvider.class), VMS(VmsProvider.class), VBB(VbbProvider.class);
+    KVV(KvvProvider.class), BVG(BvgProvider.class), VBB(VbbProvider.class);
     
     private String bvgKey;
    

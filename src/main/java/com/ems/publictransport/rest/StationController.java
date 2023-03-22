@@ -31,9 +31,13 @@ public class StationController {
 
     private ProviderUtil providerUtil;
 
+    public StationController(ProviderUtil providerUtil) {
+        this.providerUtil = providerUtil;
+    }
+
     @RequestMapping(value = "suggest", method = RequestMethod.GET)
-    public ResponseEntity suggest(@RequestParam("q") final String query, @RequestParam("provider") String providerName,
-                            @RequestParam("locationType") String stationType) throws IOException {
+    public ResponseEntity suggest(@RequestParam("q") final String query, @RequestParam(value = "provider", defaultValue = "Nvbw") String providerName,
+                            @RequestParam(value = "locationType", defaultValue = "ANY") String stationType) throws IOException {
         NetworkProvider provider;
         if (providerName != null) {
             provider = providerUtil.getObjectForProvider(providerName);

@@ -38,9 +38,15 @@ public class ConnectionController {
 
     private ProviderUtil providerUtil;
 
+    public ConnectionController(ProviderUtil providerUtil) {
+        this.providerUtil = providerUtil;
+    }
+
     @RequestMapping
-    public ResponseEntity connection(@RequestParam("from") String from, @RequestParam("to") String to, @RequestParam("provider") String providerName,
-                               @RequestParam("product") String product, @RequestParam(value = "timeOffset", defaultValue = "0") int timeOffset) throws IOException {
+    public ResponseEntity connection(@RequestParam("from") String from, @RequestParam("to") String to,
+                                     @RequestParam(value = "provider", defaultValue = "Nvbw") String providerName,
+                               @RequestParam("product") String product,
+                                     @RequestParam(value = "timeOffset", defaultValue = "0") int timeOffset) throws IOException {
         NetworkProvider provider;
         if (providerName != null) {
             provider = providerUtil.getObjectForProvider(providerName);
@@ -69,7 +75,8 @@ public class ConnectionController {
 
     @RequestMapping(value = "esp", method = RequestMethod.GET)
     public ResponseEntity departureEsp(@RequestParam("from") String from, @RequestParam("to") String to,
-                                 @RequestParam("provider") String providerName, @RequestParam(value = "product") String product,
+                                 @RequestParam(value = "provider", defaultValue = "Nvbw") String providerName,
+                                       @RequestParam("product") String product,
                                  @RequestParam(value = "timeOffset", defaultValue = "0") int timeOffset) throws IOException {
         NetworkProvider provider;
         if (providerName != null) {
@@ -102,7 +109,8 @@ public class ConnectionController {
 
     @RequestMapping(value = "FHEM", method = RequestMethod.GET)
     public ResponseEntity departureFHEM(@RequestParam("from") String from,  @RequestParam("to") String to,
-                                 @RequestParam("provider") String providerName, @RequestParam(value = "product") String product,
+                                 @RequestParam(value = "provider", defaultValue = "Nvbw") String providerName,
+                                        @RequestParam(value = "product") String product,
                                  @RequestParam(value = "limit", defaultValue = "0") int limit) throws IOException {
         NetworkProvider provider;
         if (providerName != null) {
@@ -141,8 +149,10 @@ public class ConnectionController {
 
 
     @RequestMapping(value = "raw", method = RequestMethod.GET)
-    public List<Trip> test( @RequestParam("from") String from, @RequestParam("to") String to, @RequestParam("provider") String providerName,
-                           @RequestParam("product") String product, @RequestParam(value = "timeOffset", defaultValue = "0") int timeOffset) throws IOException {
+    public List<Trip> test( @RequestParam("from") String from, @RequestParam("to") String to,
+                            @RequestParam(value = "provider", defaultValue = "Nvbw") String providerName,
+                           @RequestParam("product") String product,
+                            @RequestParam(value = "timeOffset", defaultValue = "0") int timeOffset) throws IOException {
         NetworkProvider provider;
         if (providerName != null) {
             provider = providerUtil.getObjectForProvider(providerName);
