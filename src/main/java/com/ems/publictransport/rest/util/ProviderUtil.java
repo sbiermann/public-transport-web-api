@@ -3,96 +3,71 @@ package com.ems.publictransport.rest.util;
 import de.schildbach.pte.AbstractNavitiaProvider;
 import de.schildbach.pte.NetworkProvider;
 import okhttp3.HttpUrl;
-import org.apache.deltaspike.core.api.config.ConfigProperty;
 
-
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 
 
-@RequestScoped
 public class ProviderUtil {
 
-    @Inject
-    @ConfigProperty(name = "providerkey.navitia")
+
     private String navitiaKey;
 
-    @Inject
-    @ConfigProperty(name = "providerkey.bvg")
+
     private String bvgKey;
 
-    @Inject
-    @ConfigProperty(name = "providerkey.oebb")
+
     private String oebbKey;
 
-    @Inject
-    @ConfigProperty(name = "providerkey.nvv")
+
     private String nvvKey;
 
-    @Inject
-    @ConfigProperty(name = "providerkey.invg")
+
     private String invgKey;
 
-    @Inject
-    @ConfigProperty(name = "providerkey.vgn")
+
     private String vgnKey;
 
-    @Inject
-    @ConfigProperty(name = "providerkey.sh")
+
     private String shKey;
 
-    @Inject
-    @ConfigProperty(name = "providerkey.gvh")
+
     private String gvhKey;
 
-    @Inject
-    @ConfigProperty(name = "providerkey.vbn")
+
     private String vbnKey;
 
-    @Inject
-    @ConfigProperty(name = "providerkey.vmt")
+
     private String vmtKey;
 
-    @Inject
-    @ConfigProperty(name = "providerkey.vrr")
+
     private String vrrKey;
 
-    @Inject
-    @ConfigProperty(name = "providerkey.avvaachen")
+
     private String avvaachenKey;
 
-    @Inject
-    @ConfigProperty(name = "providerkey.vvs")
+
     private String vvsKey;
 
-    @Inject
-    @ConfigProperty(name = "providerkey.kvv")
+
     private String kvvKey;
 
-    @Inject
-    @ConfigProperty(name = "providerkey.zvv")
+
     private String zvvKey;
 
-    @Inject
-    @ConfigProperty(name = "providerkey.lu")
+
     private String luKey;
 
-    @Inject
-    @ConfigProperty(name = "providerkey.dsb")
+
     private String dsbKey;
 
-    @Inject
-    @ConfigProperty(name = "providerkey.se")
+
     private String seKey;
 
-    @Inject
-    @ConfigProperty(name = "providerkey.bahn")
+
     private String bahnKey;
 
-    @Inject
-    @ConfigProperty(name = "providerkey.nasa")
+
     private String nasaKey;
 
     public NetworkProvider getObjectForProvider(String providerName) {

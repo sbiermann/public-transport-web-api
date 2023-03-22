@@ -11,17 +11,16 @@ import de.schildbach.pte.dto.QueryTripsContext;
 import de.schildbach.pte.dto.QueryTripsResult;
 import de.schildbach.pte.dto.Trip;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import javax.validation.constraints.NotNull;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -30,18 +29,18 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-@RequestScoped
-@Path("connection")
-@Produces(MediaType.APPLICATION_JSON)
+
+@RestController
+@RequestMapping(value = "rest/connection")
 public class ConnectionController {
     private DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mmZ");
 
-    @Inject
+
     private ProviderUtil providerUtil;
 
-    @GET
-    public Response connection(@NotNull @QueryParam("from") String from, @NotNull @QueryParam("to") String to, @QueryParam("provider") String providerName,
-                               @NotNull @QueryParam("product") String product, @QueryParam("timeOffset") @DefaultValue("0") int timeOffset) throws IOException {
+    @RequestMapping
+    public ResponseEntity connection(@RequestParam("from") String from, @RequestParam("to") String to, @RequestParam("provider") String providerName,
+                               @RequestParam("product") String product, @RequestParam(value = "timeOffset", defaultValue = "0") int timeOffset) throws IOException {
         NetworkProvider provider;
         if (providerName != null) {
             provider = providerUtil.getObjectForProvider(providerName);
@@ -58,21 +57,20 @@ public class ConnectionController {
             if (list.size() < 1) {
                 List<TripData> retryList = findMoreTrips(efaData.context, from, to, "normal", provider, plannedDepartureTime);
                 if (retryList.size() < 1)
-                    return Response.status(Response.Status.NOT_FOUND).entity("No trip found.").build();
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No trip found.");
                 else
-                    return Response.status(Response.Status.OK).type(MediaType.APPLICATION_JSON).entity(retryList).build();
+                    return ResponseEntity.status(HttpStatus.OK).headers(h -> h.set( HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)).body(retryList);
             } else
-                return Response.status(Response.Status.OK).type(MediaType.APPLICATION_JSON).entity(list).build();
+                return ResponseEntity.status(HttpStatus.OK).headers(h -> h.set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)).body(list);
         }
-        return Response.status(Response.Status.NOT_FOUND).entity("EFA error status: " + efaData.status.name()).build();
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("EFA error status: " + efaData.status.name());
     }
 
 
-    @Path("esp")
-    @GET
-    public Response departureEsp(@NotNull @QueryParam("from") String from, @NotNull @QueryParam("to") String to,
-                                 @QueryParam("provider") String providerName, @NotNull @QueryParam(value = "product") String product,
-                                 @QueryParam("timeOffset") @DefaultValue("0") int timeOffset) throws IOException {
+    @RequestMapping(value = "esp", method = RequestMethod.GET)
+    public ResponseEntity departureEsp(@RequestParam("from") String from, @RequestParam("to") String to,
+                                 @RequestParam("provider") String providerName, @RequestParam(value = "product") String product,
+                                 @RequestParam(value = "timeOffset", defaultValue = "0") int timeOffset) throws IOException {
         NetworkProvider provider;
         if (providerName != null) {
             provider = providerUtil.getObjectForProvider(providerName);
@@ -88,26 +86,24 @@ public class ConnectionController {
             if (list.size() < 1) {
                 List<TripData> retryList = findMoreTrips(efaData.context, from, to, "esp", provider, plannedDepartureTime);
                 if (retryList.size() < 1)
-                    return Response.status(Response.Status.NOT_FOUND).entity("No trip found.").build();
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No trip found.");
                 else
-                    return Response.status(Response.Status.OK).type(MediaType.APPLICATION_JSON)
-                            .entity("{\"connections\":[{\"from\":{\"departureTime\":\"" + retryList.get(0).getDepartureTime() + "\",\"plannedDepartureTimestamp\":"
-                                    + retryList.get(0).getPlannedDepartureTimestamp() + ",\"delay\":" + retryList.get(0).getDepartureDelay() / 60 + ",\"to\": \""
-                                    + retryList.get(0).getTo() + "\" }}]}").build();
+                    return ResponseEntity.status(HttpStatus.OK).headers(h -> h.set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)).body("{\"connections\":[{\"from\":{\"departureTime\":\"" + retryList.get(0).getDepartureTime() + "\",\"plannedDepartureTimestamp\":"
+                            + retryList.get(0).getPlannedDepartureTimestamp() + ",\"delay\":" + retryList.get(0).getDepartureDelay() / 60 + ",\"to\": \""
+                            + retryList.get(0).getTo() + "\" }}]}");
             } else
-                return Response.status(Response.Status.OK).type(MediaType.APPLICATION_JSON).entity("{\"connections\":[{\"from\":{\"departureTime\":\""
+                return ResponseEntity.status(HttpStatus.OK).headers(h -> h.set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)).body("{\"connections\":[{\"from\":{\"departureTime\":\""
                         + list.get(0).getDepartureTime() + "\",\"plannedDepartureTimestamp\":" + list.get(0).getPlannedDepartureTimestamp() + ",\"delay\":"
-                        + list.get(0).getDepartureDelay() / 60 + ",\"to\": \"" + list.get(0).getTo() + "\" }}]}").build();
+                        + list.get(0).getDepartureDelay() / 60 + ",\"to\": \"" + list.get(0).getTo() + "\" }}]}");
 
         }
-        return Response.status(Response.Status.NOT_FOUND).entity("EFA error status: " + efaData.status.name()).build();
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("EFA error status: " + efaData.status.name());
     }
 
-    @Path("FHEM")
-    @GET
-    public Response departureFHEM(@NotNull @QueryParam("from") String from, @NotNull @QueryParam("to") String to,
-                                 @QueryParam("provider") String providerName, @NotNull @QueryParam(value = "product") String product,
-                                 @QueryParam("limit") @DefaultValue("10") int limit) throws IOException {
+    @RequestMapping(value = "FHEM", method = RequestMethod.GET)
+    public ResponseEntity departureFHEM(@RequestParam("from") String from,  @RequestParam("to") String to,
+                                 @RequestParam("provider") String providerName, @RequestParam(value = "product") String product,
+                                 @RequestParam(value = "limit", defaultValue = "0") int limit) throws IOException {
         NetworkProvider provider;
         if (providerName != null) {
             provider = providerUtil.getObjectForProvider(providerName);
@@ -120,9 +116,9 @@ public class ConnectionController {
             List<TripData> list = filterTrips(efaData.trips, from, to, "normal", plannedDepartureTime);
             list.addAll(findMoreTrips(efaData.context, from, to, "normal", provider, plannedDepartureTime));
             String data = convertDeparturesFHEM(list,limit);
-            return Response.status(Response.Status.OK).type(MediaType.APPLICATION_JSON).entity(data).build();
+            return ResponseEntity.status(HttpStatus.OK).headers(h -> h.set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)).body(data);
         }
-        return Response.status(Response.Status.NOT_FOUND).entity("EFA error status: " + efaData.status.name()).build();
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("EFA error status: " + efaData.status.name());
     }
 
     private String convertDeparturesFHEM(List<TripData> stationDepartures, int limit) {
@@ -144,10 +140,9 @@ public class ConnectionController {
     }
 
 
-    @Path("raw")
-    @GET
-    public List<Trip> test(@NotNull @QueryParam("from") String from, @NotNull @QueryParam("to") String to, @QueryParam("provider") String providerName,
-                           @NotNull @QueryParam("product") String product, @QueryParam("timeOffset") @DefaultValue("0") int timeOffset) throws IOException {
+    @RequestMapping(value = "raw", method = RequestMethod.GET)
+    public List<Trip> test( @RequestParam("from") String from, @RequestParam("to") String to, @RequestParam("provider") String providerName,
+                           @RequestParam("product") String product, @RequestParam(value = "timeOffset", defaultValue = "0") int timeOffset) throws IOException {
         NetworkProvider provider;
         if (providerName != null) {
             provider = providerUtil.getObjectForProvider(providerName);

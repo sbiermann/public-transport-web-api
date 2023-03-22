@@ -1,30 +1,7 @@
 package com.ems.publictransport.rest;
 
-import com.ems.publictransport.rest.resource.DepartureData;
-import com.ems.publictransport.rest.util.ProviderUtil;
-import de.schildbach.pte.NetworkProvider;
-import de.schildbach.pte.NvbwProvider;
-import de.schildbach.pte.dto.Departure;
-import de.schildbach.pte.dto.QueryDeparturesResult;
-import de.schildbach.pte.dto.StationDepartures;
-import de.schildbach.pte.exception.AbstractHttpException;
-import org.apache.deltaspike.core.api.config.ConfigProperty;
-
-import javax.ejb.Schedule;
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-import javax.validation.constraints.NotNull;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
-import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -33,31 +10,47 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-@Stateless
-@Path("departure")
-@Produces(MediaType.APPLICATION_JSON)
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.ems.publictransport.rest.resource.DepartureData;
+import com.ems.publictransport.rest.util.ProviderUtil;
+
+import de.schildbach.pte.NetworkProvider;
+import de.schildbach.pte.NvbwProvider;
+import de.schildbach.pte.dto.Departure;
+import de.schildbach.pte.dto.QueryDeparturesResult;
+import de.schildbach.pte.dto.StationDepartures;
+import de.schildbach.pte.exception.AbstractHttpException;
+
+
+
+@RestController
+@RequestMapping(value = "rest/departure")
 public class DepartureController {
     private DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mmZ");
 
     private static int counter = 0;
 
-    @Inject
-    @ConfigProperty(name = "thingsspeak.key")
+
     private String thingspeakKey;
 
-    @Inject
-    @ConfigProperty(name = "thingsspeak.channel")
     private String thingspeakChannel;
 
-    @Inject
     private ProviderUtil providerUtil;
-    
-    @GET
-    public Response departure(@NotNull @QueryParam("from") String from, @QueryParam("provider") String providerName, @QueryParam("limit") @DefaultValue("10") int limit) throws IOException {
+
+    @RequestMapping
+    public ResponseEntity departure( @RequestParam("from") String from, @RequestParam(value = "provider", defaultValue = "VAG", required = false) String providerName, @RequestParam(value = "limit", defaultValue = "10", required = false) int limit) throws IOException {
         try {
             NetworkProvider provider = getNetworkProvider(providerName);
             if (provider == null)
-                return Response.status(Response.Status.NOT_FOUND).entity("Provider " + providerName + " not found or can not instantiated...").build();
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Provider " + providerName + " not found or can not instantiated...");
             QueryDeparturesResult efaData = provider.queryDepartures(from, new Date(), 120, true);
             if (efaData.status.name().equals("OK")) {
                 List<DepartureData> list = new ArrayList<>();
@@ -70,27 +63,26 @@ public class DepartureController {
                     list.addAll(convertDepartures(efaData.findStationDepartures(from)));
                 if (list.size() > limit)
                     list = list.subList(0, limit);
-                return Response.status(Response.Status.OK).type(MediaType.APPLICATION_JSON).entity(list).build();
+                return ResponseEntity.status(HttpStatus.OK).headers(h -> h.set( HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)).body(list);
             }
-            return Response.status(Response.Status.NOT_FOUND).entity("EFA error status: " + efaData.status.name()).build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("EFA error status: " + efaData.status.name());
         }catch(AbstractHttpException e){
-            return Response.status(Response.Status.BAD_REQUEST).entity("Called url: " + e.getUrl() + "\r\nResponse: " + e.getBodyPeek()).build();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Called url: " + e.getUrl() + "\r\nResponse: " + e.getBodyPeek());
         }
         catch(SocketTimeoutException e){
-            return Response.status(Response.Status.GATEWAY_TIMEOUT).entity("Timeout, Provider "+providerName+" not responding in 15 seconds").build();
+            return ResponseEntity.status(HttpStatus.GATEWAY_TIMEOUT).body("Timeout, Provider " + providerName + " not responding in 15 seconds");
         }finally {
             counter++;
         }
     }
 
-    @Path("FHEM")
-    @GET
-    public Response departureFHEM(@NotNull @QueryParam(value = "from") String from, @QueryParam("provider") String providerName,
-                                  @QueryParam("limit") @DefaultValue("10") int limit) throws IOException {
+    @RequestMapping(value = "FHEM", method = RequestMethod.GET)
+    public ResponseEntity departureFHEM(@RequestParam(value = "from") String from, @RequestParam(value = "provider", defaultValue = "VAG") String providerName,
+                                  @RequestParam(value = "limit", defaultValue = "10") int limit) throws IOException {
         try {
             NetworkProvider provider = getNetworkProvider(providerName);
             if (provider == null)
-                return Response.status(Response.Status.NOT_FOUND).entity("Provider " + providerName + " not found or can not instantiated...").build();
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Provider " + providerName + " not found or can not instantiated...");
             QueryDeparturesResult efaData = provider.queryDepartures(from, new Date(), 120, true);
             if (efaData.status.name().equals("OK")) {
                 String data = "";
@@ -114,37 +106,18 @@ public class DepartureController {
                 } else
                     data = convertDeparturesFHEM(efaData.findStationDepartures(from), limit);
                 if(data == null || data.isEmpty())
-                    return Response.status(Response.Status.NOT_FOUND).entity("EFA error status: " + efaData.status.name()).build();
-                return Response.status(Response.Status.OK).type(MediaType.APPLICATION_JSON).entity(data).build();
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("EFA error status: " + efaData.status.name());
+                return ResponseEntity.status(HttpStatus.OK).headers(h -> h.set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)).body(data);
             }
-            return Response.status(Response.Status.NOT_FOUND).entity("EFA error status: " + efaData.status.name()).build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("EFA error status: " + efaData.status.name());
         }catch(AbstractHttpException e){
-            return Response.status(Response.Status.BAD_REQUEST).entity("Called url: " + e.getUrl() + "\r\nResponse: " + e.getBodyPeek()).build();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Called url: " + e.getUrl() + "\r\nResponse: " + e.getBodyPeek());
         }catch(SocketTimeoutException e){
-            return Response.status(Response.Status.GATEWAY_TIMEOUT).entity("Timeout, Provider "+providerName+" not responding in 15 seconds").build();
+            return ResponseEntity.status(HttpStatus.GATEWAY_TIMEOUT).body("Timeout, Provider " + providerName + " not responding in 15 seconds");
         }
         finally {
             counter++;
         }
-
-    }
-
-    @Schedule(hour = "*", minute = "*/5", persistent = false)
-    public void sendStatistics() {
-        if (thingspeakKey == null || thingspeakKey.isEmpty())
-            return;
-        String url = "http://api.thingspeak.com/update?key=";
-        url += thingspeakKey;
-        url += "&" + thingspeakChannel + "=";
-        url += counter;
-        try {
-            URL obj = new URL(url);
-            HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-            con.getResponseCode();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        counter = 0;
 
     }
 

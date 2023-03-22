@@ -1,0 +1,46 @@
+
+spring:
+  lifecycle:
+    timeout-per-shutdown-phase: 20s
+  task:
+    execution:
+      shutdown:
+        await-termination: true
+        await-termination-period: 20s
+  application:
+    name: publictransportapi
+
+server:
+  shutdown: "graceful"
+  port: 8080
+  servlet:
+    contextPath: /${spring.application.name}
+  forward-headers-strategy: framework
+  max-http-header-size: 32KB
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+      base-path: /manage
+  endpoint:
+    health:
+      show-details: when_authorized
+    env:
+      show-values: when_authorized
+    configprops:
+      show-values: when_authorized
+  health:
+    ldap:
+      enabled: fals
+info:
+  name: ${spring.application.name}
+  description: Genex Upload Export Files to SFTPs
+  version: dev-version
+  namespace: genex-service
+
+providerkey:
+   navitia:
+   bvg:
+

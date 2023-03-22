@@ -11,9 +11,8 @@ import de.schildbach.pte.KvvProvider;
 import de.schildbach.pte.NetworkProvider;
 import de.schildbach.pte.VbbProvider;
 import de.schildbach.pte.VmsProvider;
-import org.apache.deltaspike.core.api.config.ConfigProperty;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.inject.Inject;
 import java.lang.reflect.InvocationTargetException;
 
 /**
@@ -23,9 +22,7 @@ import java.lang.reflect.InvocationTargetException;
 public enum ProviderEnum {
 
     KVV(KvvProvider.class), BVG(BvgProvider.class), VMS(VmsProvider.class), VBB(VbbProvider.class);
-
-    @Inject
-    @ConfigProperty(name = "providerkey.bvg")
+    
     private String bvgKey;
    
     private final Class<? extends NetworkProvider> providerClass;
