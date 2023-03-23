@@ -1,13 +1,11 @@
 package com.ems.publictransport.rest;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
+import java.util.stream.Collectors;
 
-import jakarta.annotation.PostConstruct;
-
-import org.reflections.Reflections;
+import org.apache.commons.text.CaseUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -19,9 +17,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ems.publictransport.rest.resource.Provider;
 
-import de.schildbach.pte.NetworkProvider;
+import de.schildbach.pte.NetworkId;
+import io.micrometer.core.annotation.Timed;
+import jakarta.annotation.PostConstruct;
 
 
+@Timed
 @RestController
 @RequestMapping(value = "rest/provider")
 public class ProviderController {
@@ -37,16 +38,11 @@ public class ProviderController {
 
     @RequestMapping
     public ResponseEntity providerlist() throws IOException {
-        List<Provider> list = new ArrayList();
-        Set<Class<? extends NetworkProvider>> reflection = new Reflections("de.schildbach.pte").getSubTypesOf(NetworkProvider.class);
-        for (Class<? extends NetworkProvider> implClass : reflection) {
-            if(implClass.getSimpleName().startsWith("Abstract"))
-                continue;
+        List<Provider> list = Arrays.stream( NetworkId.values() ).map( networkId -> {
             Provider provider = new Provider();
-            provider.setName(implClass.getSimpleName().substring(0, implClass.getSimpleName().indexOf("Provider")));
-            provider.setClass(implClass.getSimpleName());
-            list.add(provider);
-        }
+            provider.setName( CaseUtils.toCamelCase( networkId.name(), true, ' ' ) );
+            return provider;
+        } ).collect( Collectors.toList());
         return ResponseEntity.status(HttpStatus.OK).headers(h -> h.set( HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)).body(list);
     }
 

@@ -42,11 +42,29 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-actuator</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-security</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-aop</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.micrometer</groupId>
+      <artifactId>micrometer-registry-prometheus</artifactId>
+      <scope>runtime</scope>
+    </dependency>
 
     <dependency>
       <groupId>org.reflections</groupId>
       <artifactId>reflections</artifactId>
       <version>0.10.2</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-text</artifactId>
+      <version>1.10.0</version>
     </dependency>
 
     <dependency>
@@ -138,8 +156,11 @@
               <goal>copy-resources</goal>
             </goals>
             <configuration>
-              <outputDirectory>${basedir}/docker</outputDirectory>
+              <outputDirectory>${basedir}/target/docker</outputDirectory>
               <resources>
+                <resource>
+                  <directory>${basedir}/docker</directory>
+                </resource>
                 <resource>
                   <directory>${basedir}/target</directory>
                   <includes>
@@ -147,30 +168,6 @@
                   </includes>
                 </resource>
               </resources>
-            </configuration>
-          </execution>
-          <execution>
-            <id>copy-resources</id>
-            <phase>deploy</phase>
-            <goals>
-              <goal>copy-resources</goal>
-            </goals>
-            <configuration>
-              <outputDirectory>/tmp/${project.name}/releases/${project.version}
-                            </outputDirectory>
-              <resources>
-                <resource>
-                  <directory>${basedir}/target</directory>
-                  <includes>
-                    <include>*.${project.packaging}</include>
-                  </includes>
-                </resource>
-              </resources>
-              <nonFilteredFileExtensions>
-                <nonFilteredFileExtension>war</nonFilteredFileExtension>
-                <nonFilteredFileExtension>jar</nonFilteredFileExtension>
-                <nonFilteredFileExtension>sql</nonFilteredFileExtension>
-              </nonFilteredFileExtensions>
             </configuration>
           </execution>
         </executions>

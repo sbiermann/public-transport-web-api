@@ -15,15 +15,17 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ems.publictransport.rest.util.ProviderUtil;
+import com.ems.publictransport.util.ProviderUtil;
 
 import de.schildbach.pte.NetworkProvider;
 import de.schildbach.pte.NvbwProvider;
 import de.schildbach.pte.dto.Location;
 import de.schildbach.pte.dto.LocationType;
 import de.schildbach.pte.dto.SuggestLocationsResult;
+import io.micrometer.core.annotation.Timed;
 
 
+@Timed
 @RestController
 @RequestMapping(value = "rest/station")
 public class StationController {

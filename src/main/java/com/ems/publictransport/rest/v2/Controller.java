@@ -5,27 +5,6 @@
  */
 package com.ems.publictransport.rest.v2;
 
-import com.ems.publictransport.rest.v2.model.DepartureData;
-import com.ems.publictransport.rest.v2.model.Provider;
-import com.ems.publictransport.rest.v2.model.ProviderEnum;
-import de.schildbach.pte.NetworkProvider;
-import de.schildbach.pte.dto.Departure;
-import de.schildbach.pte.dto.Line;
-import de.schildbach.pte.dto.Location;
-import de.schildbach.pte.dto.LocationType;
-import de.schildbach.pte.dto.QueryDeparturesResult;
-import de.schildbach.pte.dto.StationDepartures;
-import de.schildbach.pte.dto.SuggestLocationsResult;
-
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -36,9 +15,33 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.ems.publictransport.rest.v2.model.DepartureData;
+import com.ems.publictransport.rest.v2.model.Provider;
+import com.ems.publictransport.rest.v2.model.ProviderEnum;
+
+import de.schildbach.pte.NetworkProvider;
+import de.schildbach.pte.dto.Departure;
+import de.schildbach.pte.dto.Line;
+import de.schildbach.pte.dto.Location;
+import de.schildbach.pte.dto.LocationType;
+import de.schildbach.pte.dto.QueryDeparturesResult;
+import de.schildbach.pte.dto.StationDepartures;
+import de.schildbach.pte.dto.SuggestLocationsResult;
+import io.micrometer.core.annotation.Timed;
+
 /**
  * @author constantin
  */
+@Timed
 @RestController
 @RequestMapping(value = "v2")
 public class Controller {

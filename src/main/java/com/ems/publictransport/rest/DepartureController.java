@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ems.publictransport.rest.resource.DepartureData;
-import com.ems.publictransport.rest.util.ProviderUtil;
+import com.ems.publictransport.util.ProviderUtil;
 
 import de.schildbach.pte.NetworkProvider;
 import de.schildbach.pte.NvbwProvider;
@@ -28,9 +28,10 @@ import de.schildbach.pte.dto.Departure;
 import de.schildbach.pte.dto.QueryDeparturesResult;
 import de.schildbach.pte.dto.StationDepartures;
 import de.schildbach.pte.exception.AbstractHttpException;
+import io.micrometer.core.annotation.Timed;
 
 
-
+@Timed
 @RestController
 @RequestMapping(value = "rest/departure")
 public class DepartureController {

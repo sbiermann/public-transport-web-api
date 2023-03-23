@@ -1,4 +1,4 @@
-package com.ems.publictransport.rest;
+package com.ems.publictransport;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

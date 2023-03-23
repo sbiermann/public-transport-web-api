@@ -18,7 +18,7 @@ Run the application
 -------------
 
 ```
-./gradlew bootRun
+./mvnw spring-boot:run
 ```
 Test URL for your Browser: http://localhost:8080/publictransportapi/rest/connection?from=6906508&to=6930811&product=T
 

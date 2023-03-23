@@ -1,15 +1,12 @@
 package com.ems.publictransport.rest;
 
-import com.ems.publictransport.rest.resource.TripData;
-import com.ems.publictransport.rest.util.ProviderUtil;
-import de.schildbach.pte.NetworkProvider;
-import de.schildbach.pte.NvbwProvider;
-import de.schildbach.pte.dto.Location;
-import de.schildbach.pte.dto.LocationType;
-import de.schildbach.pte.dto.Product;
-import de.schildbach.pte.dto.QueryTripsContext;
-import de.schildbach.pte.dto.QueryTripsResult;
-import de.schildbach.pte.dto.Trip;
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -20,16 +17,20 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ems.publictransport.rest.resource.TripData;
+import com.ems.publictransport.util.ProviderUtil;
 
-import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import de.schildbach.pte.NetworkProvider;
+import de.schildbach.pte.dto.Location;
+import de.schildbach.pte.dto.LocationType;
+import de.schildbach.pte.dto.Product;
+import de.schildbach.pte.dto.QueryTripsContext;
+import de.schildbach.pte.dto.QueryTripsResult;
+import de.schildbach.pte.dto.Trip;
+import io.micrometer.core.annotation.Timed;
 
 
+@Timed
 @RestController
 @RequestMapping(value = "rest/connection")
 public class ConnectionController {
@@ -47,11 +48,7 @@ public class ConnectionController {
                                      @RequestParam(value = "provider", defaultValue = "Nvbw") String providerName,
                                @RequestParam("product") String product,
                                      @RequestParam(value = "timeOffset", defaultValue = "0") int timeOffset) throws IOException {
-        NetworkProvider provider;
-        if (providerName != null) {
-            provider = providerUtil.getObjectForProvider(providerName);
-        } else
-            provider = new NvbwProvider();
+        NetworkProvider provider = providerUtil.getObjectForProvider(providerName);
         Date plannedDepartureTime = new Date();
         plannedDepartureTime.setTime(new Date().getTime() + timeOffset * 60 * 1000);
         char[] products = product.toCharArray();
@@ -78,11 +75,7 @@ public class ConnectionController {
                                  @RequestParam(value = "provider", defaultValue = "Nvbw") String providerName,
                                        @RequestParam("product") String product,
                                  @RequestParam(value = "timeOffset", defaultValue = "0") int timeOffset) throws IOException {
-        NetworkProvider provider;
-        if (providerName != null) {
-            provider = providerUtil.getObjectForProvider(providerName);
-        } else
-            provider = new NvbwProvider();
+        NetworkProvider provider = providerUtil.getObjectForProvider(providerName);;
         Date plannedDepartureTime = new Date();
         plannedDepartureTime.setTime(new Date().getTime() + timeOffset * 60 * 1000);
         char[] products = product.toCharArray();
@@ -112,11 +105,7 @@ public class ConnectionController {
                                  @RequestParam(value = "provider", defaultValue = "Nvbw") String providerName,
                                         @RequestParam(value = "product") String product,
                                  @RequestParam(value = "limit", defaultValue = "0") int limit) throws IOException {
-        NetworkProvider provider;
-        if (providerName != null) {
-            provider = providerUtil.getObjectForProvider(providerName);
-        } else
-            provider = new NvbwProvider();
+        NetworkProvider provider = providerUtil.getObjectForProvider(providerName);
         Date plannedDepartureTime = new Date();
         char[] products = product.toCharArray();
         QueryTripsResult efaData = provider.queryTrips(new Location(LocationType.STATION, from), null, new Location(LocationType.STATION, to), plannedDepartureTime, true, Product.fromCodes(products), null, null, null, null);
@@ -153,11 +142,7 @@ public class ConnectionController {
                             @RequestParam(value = "provider", defaultValue = "Nvbw") String providerName,
                            @RequestParam("product") String product,
                             @RequestParam(value = "timeOffset", defaultValue = "0") int timeOffset) throws IOException {
-        NetworkProvider provider;
-        if (providerName != null) {
-            provider = providerUtil.getObjectForProvider(providerName);
-        } else
-            provider = new NvbwProvider();
+        NetworkProvider provider = providerUtil.getObjectForProvider(providerName);
         Date plannedDepartureTime = new Date();
         plannedDepartureTime.setTime(new Date().getTime() + timeOffset * 60 * 1000);
         char[] products = product.toCharArray();
