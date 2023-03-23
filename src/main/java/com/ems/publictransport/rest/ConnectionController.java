@@ -8,6 +8,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import de.schildbach.pte.dto.*;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -21,12 +22,6 @@ import com.ems.publictransport.rest.resource.TripData;
 import com.ems.publictransport.util.ProviderUtil;
 
 import de.schildbach.pte.NetworkProvider;
-import de.schildbach.pte.dto.Location;
-import de.schildbach.pte.dto.LocationType;
-import de.schildbach.pte.dto.Product;
-import de.schildbach.pte.dto.QueryTripsContext;
-import de.schildbach.pte.dto.QueryTripsResult;
-import de.schildbach.pte.dto.Trip;
 import io.micrometer.core.annotation.Timed;
 
 
@@ -52,7 +47,8 @@ public class ConnectionController {
         Date plannedDepartureTime = new Date();
         plannedDepartureTime.setTime(new Date().getTime() + timeOffset * 60 * 1000);
         char[] products = product.toCharArray();
-        QueryTripsResult efaData = provider.queryTrips(new Location(LocationType.STATION, from), null, new Location(LocationType.STATION, to), plannedDepartureTime, true, Product.fromCodes(products), null, null, null, null);
+        QueryTripsResult efaData = provider.queryTrips(new Location(LocationType.STATION, from), null, new Location(LocationType.STATION, to), plannedDepartureTime,
+                true, new TripOptions(Product.fromCodes(products), null, null, null, null));
 
         if (efaData.status.name().equals("OK")) {
             List<TripData> list = filterTrips(efaData.trips, from, to, "normal", plannedDepartureTime);
@@ -79,7 +75,8 @@ public class ConnectionController {
         Date plannedDepartureTime = new Date();
         plannedDepartureTime.setTime(new Date().getTime() + timeOffset * 60 * 1000);
         char[] products = product.toCharArray();
-        QueryTripsResult efaData = provider.queryTrips(new Location(LocationType.STATION, from), null, new Location(LocationType.STATION, to), plannedDepartureTime, true, Product.fromCodes(products), null, null, null, null);
+        QueryTripsResult efaData = provider.queryTrips(new Location(LocationType.STATION, from), null, new Location(LocationType.STATION, to), plannedDepartureTime,
+                true, new TripOptions(Product.fromCodes(products), null, null, null, null));
         if (efaData.status.name().equals("OK")) {
             List<TripData> list = filterTrips(efaData.trips, from, to, "esp", plannedDepartureTime);
 
@@ -108,7 +105,8 @@ public class ConnectionController {
         NetworkProvider provider = providerUtil.getObjectForProvider(providerName);
         Date plannedDepartureTime = new Date();
         char[] products = product.toCharArray();
-        QueryTripsResult efaData = provider.queryTrips(new Location(LocationType.STATION, from), null, new Location(LocationType.STATION, to), plannedDepartureTime, true, Product.fromCodes(products), null, null, null, null);
+        QueryTripsResult efaData = provider.queryTrips(new Location(LocationType.STATION, from), null, new Location(LocationType.STATION, to), plannedDepartureTime,
+                true, new TripOptions(Product.fromCodes(products), null, null, null, null));
         if (efaData.status.name().equals("OK")) {
             List<TripData> list = filterTrips(efaData.trips, from, to, "normal", plannedDepartureTime);
             list.addAll(findMoreTrips(efaData.context, from, to, "normal", provider, plannedDepartureTime));
@@ -146,7 +144,8 @@ public class ConnectionController {
         Date plannedDepartureTime = new Date();
         plannedDepartureTime.setTime(new Date().getTime() + timeOffset * 60 * 1000);
         char[] products = product.toCharArray();
-        QueryTripsResult efaData = provider.queryTrips(new Location(LocationType.STATION, from), null, new Location(LocationType.STATION, to), plannedDepartureTime, true, Product.fromCodes(products), null, null, null, null);
+        QueryTripsResult efaData = provider.queryTrips(new Location(LocationType.STATION, from), null, new Location(LocationType.STATION, to), plannedDepartureTime,
+                true,new TripOptions(Product.fromCodes(products), null, null, null, null));
 
         return efaData.trips;
     }

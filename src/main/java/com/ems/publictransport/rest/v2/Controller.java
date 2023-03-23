@@ -70,7 +70,7 @@ public class Controller {
         if (provider == null)
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Provider " + providerName + " not found or can not instantiated...");
 
-        SuggestLocationsResult suggestLocations = provider.suggestLocations(query);
+        SuggestLocationsResult suggestLocations = provider.suggestLocations(query, null, 10);
         if (SuggestLocationsResult.Status.OK.equals(suggestLocations.status)) {
             Iterator<Location> iterator = suggestLocations.getLocations().iterator();
             LocationType locationType = getLocationType(stationType);

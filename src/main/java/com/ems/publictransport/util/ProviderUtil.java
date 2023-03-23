@@ -94,7 +94,7 @@ public class ProviderUtil
 		if( providerName == null || providerName.length() < 1 )
 			return null;
 		NetworkId networkId = NetworkId.valueOf( providerName.toUpperCase() );
-		logger.info( "found NetworkId: " + networkId );
+		logger.debug( "found NetworkId: " + networkId );
 		try
 		{
 
