@@ -5,27 +5,6 @@
  */
 package com.ems.publictransport.rest.v2;
 
-import com.ems.publictransport.rest.v2.model.DepartureData;
-import com.ems.publictransport.rest.v2.model.Provider;
-import com.ems.publictransport.rest.v2.model.ProviderEnum;
-import de.schildbach.pte.NetworkProvider;
-import de.schildbach.pte.dto.Departure;
-import de.schildbach.pte.dto.Line;
-import de.schildbach.pte.dto.Location;
-import de.schildbach.pte.dto.LocationType;
-import de.schildbach.pte.dto.QueryDeparturesResult;
-import de.schildbach.pte.dto.StationDepartures;
-import de.schildbach.pte.dto.SuggestLocationsResult;
-
-import javax.enterprise.context.RequestScoped;
-import javax.validation.constraints.NotNull;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -36,48 +15,68 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.ems.publictransport.rest.v2.model.DepartureData;
+import com.ems.publictransport.rest.v2.model.Provider;
+import com.ems.publictransport.rest.v2.model.ProviderEnum;
+
+import de.schildbach.pte.NetworkProvider;
+import de.schildbach.pte.dto.Departure;
+import de.schildbach.pte.dto.Line;
+import de.schildbach.pte.dto.Location;
+import de.schildbach.pte.dto.LocationType;
+import de.schildbach.pte.dto.QueryDeparturesResult;
+import de.schildbach.pte.dto.StationDepartures;
+import de.schildbach.pte.dto.SuggestLocationsResult;
+import io.micrometer.core.annotation.Timed;
+
 /**
  * @author constantin
  */
-@RequestScoped
-@Path("v2")
-@Produces(MediaType.APPLICATION_JSON)
+@Timed
+@RestController
+@RequestMapping(value = "v2")
 public class Controller {
 
 
-    @Path("provider")
-    @GET
-    public Response providerlist() throws IOException {
+    @RequestMapping(value = "provider", method = RequestMethod.GET)
+    public ResponseEntity providerlist() throws IOException {
         List<Provider> list = new ArrayList();
         for (ProviderEnum each : ProviderEnum.values()) {
             list.add(each.asProvider());
         }
-        return Response.status(Response.Status.OK).type(MediaType.APPLICATION_JSON).entity(list).build();
+        return ResponseEntity.status(HttpStatus.OK).headers(h -> h.set( HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)).body(list);
     }
 
-    @Path("station/nearby")
-    @GET
-    public Response findNearbyLocations(@QueryParam("provider") String providerName) {
+    @RequestMapping(value = "station/nearby", method = RequestMethod.GET)
+    public ResponseEntity findNearbyLocations(@RequestParam("provider") String providerName) {
         NetworkProvider networkProvider = getNetworkProvider(providerName);
-        return Response.status(Response.Status.OK).type(MediaType.APPLICATION_JSON).entity(networkProvider != null ? networkProvider.defaultProducts() : "").build();
+        return ResponseEntity.status(HttpStatus.OK).headers(h -> h.set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)).body(networkProvider != null ? networkProvider.defaultProducts() : "");
     }
 
 
-    @Path("station/suggest")
-    @GET
-    public Response suggest(@NotNull @QueryParam("q") final String query, @QueryParam("provider") String providerName,
-                            @QueryParam("locationType") String stationType) throws IOException {
+    @RequestMapping(value = "station/suggest", method = RequestMethod.GET)
+    public ResponseEntity suggest( @RequestParam("q") final String query, @RequestParam("provider") String providerName,
+                            @RequestParam("locationType") String stationType) throws IOException {
         NetworkProvider provider = getNetworkProvider(providerName);
         if (provider == null)
-            return Response.status(Response.Status.NOT_FOUND).entity("Provider " + providerName + " not found or can not instantiated...").build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Provider " + providerName + " not found or can not instantiated...");
 
-        SuggestLocationsResult suggestLocations = provider.suggestLocations(query);
+        SuggestLocationsResult suggestLocations = provider.suggestLocations(query, null, 10);
         if (SuggestLocationsResult.Status.OK.equals(suggestLocations.status)) {
             Iterator<Location> iterator = suggestLocations.getLocations().iterator();
             LocationType locationType = getLocationType(stationType);
             List<Location> resultList = new ArrayList<>();
             if (locationType == null) {
-                return Response.status(Response.Status.NOT_FOUND).entity("LocationType " + stationType + " not found or can not instantiated...").build();
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("LocationType " + stationType + " not found or can not instantiated...");
             } else if (!LocationType.ANY.equals(locationType)) {
                 while (iterator.hasNext()) {
                     Location loc = iterator.next();
@@ -88,20 +87,19 @@ public class Controller {
             } else {
                 resultList.addAll(suggestLocations.getLocations());
             }
-            return Response.status(Response.Status.OK).type(MediaType.APPLICATION_JSON).entity(resultList).build();
+            return ResponseEntity.status(HttpStatus.OK).headers(h -> h.set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)).body(resultList);
         } else {
-            return Response.status(Response.Status.REQUEST_TIMEOUT).entity("Remote Service is down or temporarily not available").build();
+            return ResponseEntity.status(HttpStatus.REQUEST_TIMEOUT).body("Remote Service is down or temporarily not available");
         }
     }
 
-    @Path("departure")
-    @GET
-    public Response departure(@NotNull @QueryParam("from") String from, @QueryParam("provider") String providerName,
-                              @QueryParam("limit") @DefaultValue("10") int limit, @QueryParam("numberFilter") String numberFilter,
-                              @QueryParam("toFilter") String toFilter) throws IOException {
+    @RequestMapping(value = "departure", method = RequestMethod.GET)
+    public ResponseEntity departure( @RequestParam("from") String from, @RequestParam("provider") String providerName,
+                              @RequestParam(value = "limit", defaultValue = "10")  int limit, @RequestParam("numberFilter") String numberFilter,
+                              @RequestParam("toFilter") String toFilter) throws IOException {
         NetworkProvider provider = getNetworkProvider(providerName);
         if (provider == null) {
-            return Response.status(Response.Status.NOT_FOUND).entity("Provider " + providerName + " not found or can not instantiated...").build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Provider " + providerName + " not found or can not instantiated...");
         }
         QueryDeparturesResult efaData = provider.queryDepartures(from, new Date(), 120, true);
         if (efaData.status.name().equals("OK")) {
@@ -117,9 +115,9 @@ public class Controller {
             if (list.size() > limit) {
                 list = list.subList(0, limit);
             }
-            return Response.status(Response.Status.OK).type(MediaType.APPLICATION_JSON).entity(list).build();
+            return ResponseEntity.status(HttpStatus.OK).headers(h -> h.set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)).body(list);
         }
-        return Response.status(Response.Status.NOT_FOUND).entity("EFA error status: " + efaData.status.name()).build();
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body( "EFA error status: " + efaData.status.name());
 
     }
 

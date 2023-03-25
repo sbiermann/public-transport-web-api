@@ -5,16 +5,14 @@
  */
 package com.ems.publictransport.rest.v2.model;
 
+import java.lang.reflect.InvocationTargetException;
+
 import com.ems.publictransport.rest.v2.PropertyReader;
+
 import de.schildbach.pte.BvgProvider;
 import de.schildbach.pte.KvvProvider;
 import de.schildbach.pte.NetworkProvider;
 import de.schildbach.pte.VbbProvider;
-import de.schildbach.pte.VmsProvider;
-import org.apache.deltaspike.core.api.config.ConfigProperty;
-
-import javax.inject.Inject;
-import java.lang.reflect.InvocationTargetException;
 
 /**
  *
@@ -22,12 +20,8 @@ import java.lang.reflect.InvocationTargetException;
  */
 public enum ProviderEnum {
 
-    KVV(KvvProvider.class), BVG(BvgProvider.class), VMS(VmsProvider.class), VBB(VbbProvider.class);
+    KVV(KvvProvider.class), BVG(BvgProvider.class), VBB(VbbProvider.class);
 
-    @Inject
-    @ConfigProperty(name = "providerkey.bvg")
-    private String bvgKey;
-   
     private final Class<? extends NetworkProvider> providerClass;
 
     ProviderEnum(Class<? extends NetworkProvider> providerClass) {
@@ -41,7 +35,7 @@ public enum ProviderEnum {
     public NetworkProvider newNetworkProvider() {
         try {
             if(providerClass.getName().equals(BvgProvider.class.getName()))
-                return  (NetworkProvider)providerClass.getDeclaredConstructor(String.class).newInstance(bvgKey);
+                return  (NetworkProvider)providerClass.getDeclaredConstructor(String.class).newInstance("{\"aid\":\"1Rxs112shyHLatUX4fofnmdxK\",\"type\":\"AID\"}");
             return providerClass.newInstance();
         } catch (InstantiationException | IllegalAccessException ex) {
             throw new RuntimeException("error on instantiation of networkprovider '" + name() + "'",ex);

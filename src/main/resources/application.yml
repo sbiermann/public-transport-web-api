@@ -1,0 +1,74 @@
+spring:
+  lifecycle:
+    timeout-per-shutdown-phase: 20s
+  task:
+    execution:
+      shutdown:
+        await-termination: true
+        await-termination-period: 20s
+  application:
+    name: publictransportapi
+  security:
+    user:
+      name: ${app.actuator.username}
+      password: ${app.actuator.password}
+      roles: ENDPOINT_ADMIN
+
+
+server:
+  shutdown: "graceful"
+  port: 8080
+  servlet:
+    contextPath: /${spring.application.name}
+  forward-headers-strategy: framework
+  max-http-request-header-size: 32KB
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+      base-path: /manage
+  endpoint:
+    health:
+      show-details: when_authorized
+    env:
+      show-values: when_authorized
+    configprops:
+      show-values: when_authorized
+  health:
+    ldap:
+      enabled: false
+info:
+  name: ${spring.application.name}
+  description: Public Transport REST API
+  version: dev-version
+
+provider:
+  keys:
+    navitia: "3e35c34c-057f-4444-ac20-c0d9d7ba7d98"
+    bvg: "{\"aid\":\"1Rxs112shyHLatUX4fofnmdxK\",\"type\":\"AID\"}"
+    oebb: "{\"type\":\"AID\",\"aid\":\"OWDL4fE4ixNiPBBm\"}"
+    nvv: "{\"type\":\"AID\",\"aid\":\"Kt8eNOH7qjVeSxNA\"}"
+    invg: "{\"type\":\"AID\",\"aid\":\"GITvwi3BGOmTQ2a5\"}"
+    vgn: "https://efa.vgn.de/vgnExt_oeffi/"
+    sh: "{\"aid\":\"r0Ot9FLFNAFxijLW\",\"type\":\"AID\"}"
+    gvh: "https://www.efa.de/app_oeffi/"
+    vbn: "{\"aid\":\"rnOHBWhesvc7gFkd\",\"type\":\"AID\"}"
+    vmt: "{\"aid\":\"vj5d7i3g9m5d7e3\",\"type\":\"AID\"}"
+    vrr: "https://app.vrr.de/oeffi/"
+    avvaachen: "{\"type\":\"AID\",\"aid\":\"4vV1AcH3N511icH\"}"
+    vvs: "https://www2.vvs.de/oeffi/"
+    kvv: "https://projekte.kvv-efa.de/oeffi/"
+    zvv: "{\"type\":\"AID\",\"aid\":\"hf7mcf9bv3nv8g5f\"}"
+    lu: "{\"type\":\"AID\",\"aid\":\"Aqf9kNqJLjxFx6vv\"}"
+    dsb: "{\"type\":\"AID\",\"aid\":\"irkmpm9mdznstenr-android\"}"
+    se: "{\"type\":\"AID\",\"aid\":\"h5o3n7f4t2m8l9x1\"}"
+    bahn: "{\"type\":\"AID\",\"aid\":\"n91dB8Z77MLdoR0K\"}"
+    nasa: "{\"type\":\"AID\",\"aid\":\"nasa-apps\"}"
+    vbb: "{\"type\":\"AID\",\"aid\":\"hafas-vbb-apps\"}"
+    vvo: "https://efa.vvo-online.de/Oeffi/"
+    sncb: "{\"type\":\"AID\",\"aid\":\"sncb-mobi\"}"
+    bart: "{\"type\":\"AID\",\"aid\":\"kEwHkFUCIL500dym\"}"
+    cmta: "{\"type\":\"AID\",\"aid\":\"web9j2nak29uz41irb\"}"
+
