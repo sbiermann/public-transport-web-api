@@ -1,15 +1,14 @@
 package com.ems.publictransport.rest;
 
-import java.io.IOException;
-import java.net.SocketTimeoutException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-
+import com.ems.publictransport.rest.resource.DepartureData;
+import com.ems.publictransport.util.ProviderUtil;
+import de.schildbach.pte.NetworkProvider;
+import de.schildbach.pte.NvbwProvider;
+import de.schildbach.pte.dto.Departure;
+import de.schildbach.pte.dto.QueryDeparturesResult;
+import de.schildbach.pte.dto.StationDepartures;
+import de.schildbach.pte.exception.AbstractHttpException;
+import io.micrometer.core.annotation.Timed;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -19,16 +18,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ems.publictransport.rest.resource.DepartureData;
-import com.ems.publictransport.util.ProviderUtil;
-
-import de.schildbach.pte.NetworkProvider;
-import de.schildbach.pte.NvbwProvider;
-import de.schildbach.pte.dto.Departure;
-import de.schildbach.pte.dto.QueryDeparturesResult;
-import de.schildbach.pte.dto.StationDepartures;
-import de.schildbach.pte.exception.AbstractHttpException;
-import io.micrometer.core.annotation.Timed;
+import java.io.IOException;
+import java.net.SocketTimeoutException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 
 @Timed
@@ -48,6 +42,8 @@ public class DepartureController {
                                      @RequestParam(value = "provider", defaultValue = "Nvbw") String providerName,
                                      @RequestParam(value = "limit", defaultValue = "10") int limit) throws IOException {
         try {
+            if(providerName.equalsIgnoreCase("bahn"))
+                providerName = "DB";
             NetworkProvider provider = getNetworkProvider(providerName);
             if (provider == null)
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Provider " + providerName + " not found or can not instantiated...");
@@ -72,12 +68,19 @@ public class DepartureController {
         catch(SocketTimeoutException e){
             return ResponseEntity.status(HttpStatus.GATEWAY_TIMEOUT).body("Timeout, Provider " + providerName + " not responding in 15 seconds");
         }
+        catch(IllegalArgumentException e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Provider [" + providerName + "] not found, please check for new one");
+        }catch(RuntimeException e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Can not parse result from provider, message:" +e.getMessage());
+        }
     }
 
     @RequestMapping(value = "FHEM", method = RequestMethod.GET)
     public ResponseEntity departureFHEM(@RequestParam(value = "from") String from, @RequestParam(value = "provider", defaultValue = "Nvbw") String providerName,
                                   @RequestParam(value = "limit", defaultValue = "10") int limit) throws IOException {
         try {
+            if(providerName.equalsIgnoreCase("bahn"))
+                providerName = "DB";
             NetworkProvider provider = getNetworkProvider(providerName);
             if (provider == null)
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Provider " + providerName + " not found or can not instantiated...");
@@ -112,6 +115,10 @@ public class DepartureController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Called url: " + e.getUrl() + "\r\nResponse: " + e.getBodyPeek());
         }catch(SocketTimeoutException e){
             return ResponseEntity.status(HttpStatus.GATEWAY_TIMEOUT).body("Timeout, Provider " + providerName + " not responding in 15 seconds");
+        }catch(IllegalArgumentException e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Provider [" + providerName + "] not found, please check for new one");
+        }catch(RuntimeException e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Can not parse result from provider, message:" +e.getMessage());
         }
 
     }
@@ -156,6 +163,8 @@ public class DepartureController {
     private List<DepartureData> convertDepartures(StationDepartures stationDepartures) {
         Calendar cal = Calendar.getInstance();
         List<DepartureData> list = new ArrayList();
+        if(stationDepartures == null)
+            return list;
         for (Departure departure : stationDepartures.departures) {
             DepartureData data = new DepartureData();
             data.setTo(departure.destination.name);

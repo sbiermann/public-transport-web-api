@@ -1,6 +1,4 @@
 spring:
-  config:
-    import: secrets.yml
   lifecycle:
     timeout-per-shutdown-phase: 20s
   task:
