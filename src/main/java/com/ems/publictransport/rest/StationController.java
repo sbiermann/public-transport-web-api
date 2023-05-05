@@ -1,6 +1,7 @@
 package com.ems.publictransport.rest;
 
 import java.io.IOException;
+import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -69,8 +70,8 @@ public class StationController {
             } else {
                 return ResponseEntity.status(HttpStatus.REQUEST_TIMEOUT).body("Remote Service is down or temporarily not available");
             }
-        } catch (SocketTimeoutException e) {
-            return ResponseEntity.status(HttpStatus.GATEWAY_TIMEOUT).body("Timeout, Provider " + providerName + " not responding in 15 seconds");
+        } catch ( SocketTimeoutException | SocketException e) {
+            return ResponseEntity.status(HttpStatus.GATEWAY_TIMEOUT).body("Timeout, Provider " + providerName + " not responding in 15 seconds or closed the connection");
         }
     }
 

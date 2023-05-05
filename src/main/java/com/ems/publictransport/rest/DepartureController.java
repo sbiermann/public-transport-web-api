@@ -1,14 +1,16 @@
 package com.ems.publictransport.rest;
 
-import com.ems.publictransport.rest.resource.DepartureData;
-import com.ems.publictransport.util.ProviderUtil;
-import de.schildbach.pte.NetworkProvider;
-import de.schildbach.pte.NvbwProvider;
-import de.schildbach.pte.dto.Departure;
-import de.schildbach.pte.dto.QueryDeparturesResult;
-import de.schildbach.pte.dto.StationDepartures;
-import de.schildbach.pte.exception.AbstractHttpException;
-import io.micrometer.core.annotation.Timed;
+import java.io.IOException;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -18,11 +20,16 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.IOException;
-import java.net.SocketTimeoutException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import com.ems.publictransport.rest.resource.DepartureData;
+import com.ems.publictransport.util.ProviderUtil;
+
+import de.schildbach.pte.NetworkProvider;
+import de.schildbach.pte.NvbwProvider;
+import de.schildbach.pte.dto.Departure;
+import de.schildbach.pte.dto.QueryDeparturesResult;
+import de.schildbach.pte.dto.StationDepartures;
+import de.schildbach.pte.exception.AbstractHttpException;
+import io.micrometer.core.annotation.Timed;
 
 
 @Timed
@@ -65,8 +72,8 @@ public class DepartureController {
         }catch(AbstractHttpException e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Called url: " + e.getUrl() + "\r\nResponse: " + e.getBodyPeek());
         }
-        catch(SocketTimeoutException e){
-            return ResponseEntity.status(HttpStatus.GATEWAY_TIMEOUT).body("Timeout, Provider " + providerName + " not responding in 15 seconds");
+        catch( SocketTimeoutException | SocketException e){
+            return ResponseEntity.status(HttpStatus.GATEWAY_TIMEOUT).body("Timeout, Provider " + providerName + " not responding in 15 seconds or closed the connection");
         }
         catch(IllegalArgumentException e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Provider [" + providerName + "] not found, please check for new one");
@@ -113,8 +120,8 @@ public class DepartureController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("EFA error status: " + efaData.status.name());
         }catch(AbstractHttpException e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Called url: " + e.getUrl() + "\r\nResponse: " + e.getBodyPeek());
-        }catch(SocketTimeoutException e){
-            return ResponseEntity.status(HttpStatus.GATEWAY_TIMEOUT).body("Timeout, Provider " + providerName + " not responding in 15 seconds");
+        }catch(SocketTimeoutException | SocketException e){
+            return ResponseEntity.status(HttpStatus.GATEWAY_TIMEOUT).body("Timeout, Provider " + providerName + " not responding in 15 seconds or closed the connection");
         }catch(IllegalArgumentException e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Provider [" + providerName + "] not found, please check for new one");
         }catch(RuntimeException e){
