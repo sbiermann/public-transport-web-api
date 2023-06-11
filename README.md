@@ -12,7 +12,7 @@ cd public-transport-web-api
 
 git submodule init
 
-git submodule update
+git submodule update --remote --merge
 
 Run the application
 -------------
