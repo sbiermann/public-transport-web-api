@@ -5,38 +5,25 @@
  */
 package com.ems.publictransport.rest.v2;
 
-import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-
+import com.ems.publictransport.rest.v2.model.DepartureData;
+import com.ems.publictransport.rest.v2.model.Provider;
+import com.ems.publictransport.rest.v2.model.ProviderEnum;
+import de.schildbach.pte.NetworkProvider;
+import de.schildbach.pte.dto.*;
+import io.micrometer.core.annotation.Timed;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ems.publictransport.rest.v2.model.DepartureData;
-import com.ems.publictransport.rest.v2.model.Provider;
-import com.ems.publictransport.rest.v2.model.ProviderEnum;
-
-import de.schildbach.pte.NetworkProvider;
-import de.schildbach.pte.dto.Departure;
-import de.schildbach.pte.dto.Line;
-import de.schildbach.pte.dto.Location;
-import de.schildbach.pte.dto.LocationType;
-import de.schildbach.pte.dto.QueryDeparturesResult;
-import de.schildbach.pte.dto.StationDepartures;
-import de.schildbach.pte.dto.SuggestLocationsResult;
-import io.micrometer.core.annotation.Timed;
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * @author constantin
@@ -47,7 +34,7 @@ import io.micrometer.core.annotation.Timed;
 public class Controller {
 
 
-    @RequestMapping(value = "provider", method = RequestMethod.GET)
+    @GetMapping("provider")
     public ResponseEntity providerlist() throws IOException {
         List<Provider> list = new ArrayList();
         for (ProviderEnum each : ProviderEnum.values()) {
@@ -56,14 +43,14 @@ public class Controller {
         return ResponseEntity.status(HttpStatus.OK).headers(h -> h.set( HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)).body(list);
     }
 
-    @RequestMapping(value = "station/nearby", method = RequestMethod.GET)
+    @GetMapping("station/nearby")
     public ResponseEntity findNearbyLocations(@RequestParam("provider") String providerName) {
         NetworkProvider networkProvider = getNetworkProvider(providerName);
         return ResponseEntity.status(HttpStatus.OK).headers(h -> h.set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)).body(networkProvider != null ? networkProvider.defaultProducts() : "");
     }
 
 
-    @RequestMapping(value = "station/suggest", method = RequestMethod.GET)
+    @GetMapping("station/suggest")
     public ResponseEntity suggest( @RequestParam("q") final String query, @RequestParam("provider") String providerName,
                             @RequestParam("locationType") String stationType) throws IOException {
         NetworkProvider provider = getNetworkProvider(providerName);
@@ -93,10 +80,10 @@ public class Controller {
         }
     }
 
-    @RequestMapping(value = "departure", method = RequestMethod.GET)
-    public ResponseEntity departure( @RequestParam("from") String from, @RequestParam("provider") String providerName,
-                              @RequestParam(value = "limit", defaultValue = "10")  int limit, @RequestParam("numberFilter") String numberFilter,
-                              @RequestParam("toFilter") String toFilter) throws IOException {
+    @GetMapping("departure")
+    public ResponseEntity departure( @RequestParam String from, @RequestParam("provider") String providerName,
+        @RequestParam(defaultValue = "10")  int limit, @RequestParam String numberFilter,
+        @RequestParam String toFilter) throws IOException {
         NetworkProvider provider = getNetworkProvider(providerName);
         if (provider == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Provider " + providerName + " not found or can not instantiated...");

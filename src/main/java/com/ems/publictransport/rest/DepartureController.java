@@ -1,28 +1,7 @@
 package com.ems.publictransport.rest;
 
-import java.io.IOException;
-import java.net.SocketException;
-import java.net.SocketTimeoutException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.ems.publictransport.rest.resource.DepartureData;
 import com.ems.publictransport.util.ProviderUtil;
-
 import de.schildbach.pte.NetworkProvider;
 import de.schildbach.pte.NvbwProvider;
 import de.schildbach.pte.dto.Departure;
@@ -30,6 +9,21 @@ import de.schildbach.pte.dto.QueryDeparturesResult;
 import de.schildbach.pte.dto.StationDepartures;
 import de.schildbach.pte.exception.AbstractHttpException;
 import io.micrometer.core.annotation.Timed;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.io.IOException;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 
 @Timed
@@ -44,10 +38,10 @@ public class DepartureController {
         this.providerUtil = providerUtil;
     }
 
-    @RequestMapping
-    public ResponseEntity departure( @RequestParam("from") String from,
+    @GetMapping
+    public ResponseEntity departure( @RequestParam String from,
                                      @RequestParam(value = "provider", defaultValue = "Nvbw") String providerName,
-                                     @RequestParam(value = "limit", defaultValue = "10") int limit) throws IOException {
+        @RequestParam(defaultValue = "10") int limit) throws IOException {
         try {
             if(providerName.equalsIgnoreCase("bahn"))
                 providerName = "DB";
@@ -82,9 +76,9 @@ public class DepartureController {
         }
     }
 
-    @RequestMapping(value = "FHEM", method = RequestMethod.GET)
-    public ResponseEntity departureFHEM(@RequestParam(value = "from") String from, @RequestParam(value = "provider", defaultValue = "Nvbw") String providerName,
-                                  @RequestParam(value = "limit", defaultValue = "10") int limit) throws IOException {
+    @GetMapping("FHEM")
+    public ResponseEntity departureFHEM(@RequestParam String from, @RequestParam(value = "provider", defaultValue = "Nvbw") String providerName,
+        @RequestParam(defaultValue = "10") int limit) throws IOException {
         try {
             if(providerName.equalsIgnoreCase("bahn"))
                 providerName = "DB";
@@ -126,6 +120,8 @@ public class DepartureController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Provider [" + providerName + "] not found, please check for new one");
         }catch(RuntimeException e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Can not parse result from provider, message:" +e.getMessage());
+        }catch(IOException e){
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body("Can not parse result or other from provider, message:" +e.getMessage());
         }
 
     }

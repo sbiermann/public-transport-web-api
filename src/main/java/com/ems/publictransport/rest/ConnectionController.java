@@ -1,5 +1,19 @@
 package com.ems.publictransport.rest;
 
+import com.ems.publictransport.rest.resource.TripData;
+import com.ems.publictransport.util.ProviderUtil;
+import de.schildbach.pte.NetworkProvider;
+import de.schildbach.pte.dto.*;
+import io.micrometer.core.annotation.Timed;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -7,22 +21,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-
-import de.schildbach.pte.dto.*;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.ems.publictransport.rest.resource.TripData;
-import com.ems.publictransport.util.ProviderUtil;
-
-import de.schildbach.pte.NetworkProvider;
-import io.micrometer.core.annotation.Timed;
 
 
 @Timed
@@ -38,11 +36,11 @@ public class ConnectionController {
         this.providerUtil = providerUtil;
     }
 
-    @RequestMapping
-    public ResponseEntity connection(@RequestParam("from") String from, @RequestParam("to") String to,
+    @GetMapping
+    public ResponseEntity connection(@RequestParam String from, @RequestParam String to,
                                      @RequestParam(value = "provider", defaultValue = "Nvbw") String providerName,
-                               @RequestParam("product") String product,
-                                     @RequestParam(value = "timeOffset", defaultValue = "0") int timeOffset) throws IOException {
+        @RequestParam String product,
+        @RequestParam(defaultValue = "0") int timeOffset) throws IOException {
         NetworkProvider provider = providerUtil.getObjectForProvider(providerName);
         Date plannedDepartureTime = new Date();
         plannedDepartureTime.setTime(new Date().getTime() + timeOffset * 60 * 1000);
@@ -66,11 +64,11 @@ public class ConnectionController {
     }
 
 
-    @RequestMapping(value = "esp", method = RequestMethod.GET)
-    public ResponseEntity departureEsp(@RequestParam("from") String from, @RequestParam("to") String to,
+    @GetMapping("esp")
+    public ResponseEntity departureEsp(@RequestParam String from, @RequestParam String to,
                                  @RequestParam(value = "provider", defaultValue = "Nvbw") String providerName,
-                                       @RequestParam("product") String product,
-                                 @RequestParam(value = "timeOffset", defaultValue = "0") int timeOffset) throws IOException {
+        @RequestParam String product,
+        @RequestParam(defaultValue = "0") int timeOffset) throws IOException {
         NetworkProvider provider = providerUtil.getObjectForProvider(providerName);;
         Date plannedDepartureTime = new Date();
         plannedDepartureTime.setTime(new Date().getTime() + timeOffset * 60 * 1000);
@@ -97,11 +95,11 @@ public class ConnectionController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("EFA error status: " + efaData.status.name());
     }
 
-    @RequestMapping(value = "FHEM", method = RequestMethod.GET)
-    public ResponseEntity departureFHEM(@RequestParam("from") String from,  @RequestParam("to") String to,
+    @GetMapping("FHEM")
+    public ResponseEntity departureFHEM(@RequestParam String from,  @RequestParam String to,
                                  @RequestParam(value = "provider", defaultValue = "Nvbw") String providerName,
-                                        @RequestParam(value = "product") String product,
-                                 @RequestParam(value = "limit", defaultValue = "0") int limit) throws IOException {
+        @RequestParam String product,
+        @RequestParam(defaultValue = "0") int limit) throws IOException {
         NetworkProvider provider = providerUtil.getObjectForProvider(providerName);
         Date plannedDepartureTime = new Date();
         char[] products = product.toCharArray();
@@ -135,11 +133,11 @@ public class ConnectionController {
     }
 
 
-    @RequestMapping(value = "raw", method = RequestMethod.GET)
-    public List<Trip> test( @RequestParam("from") String from, @RequestParam("to") String to,
+    @GetMapping("raw")
+    public List<Trip> test( @RequestParam String from, @RequestParam String to,
                             @RequestParam(value = "provider", defaultValue = "Nvbw") String providerName,
-                           @RequestParam("product") String product,
-                            @RequestParam(value = "timeOffset", defaultValue = "0") int timeOffset) throws IOException {
+        @RequestParam String product,
+        @RequestParam(defaultValue = "0") int timeOffset) throws IOException {
         NetworkProvider provider = providerUtil.getObjectForProvider(providerName);
         Date plannedDepartureTime = new Date();
         plannedDepartureTime.setTime(new Date().getTime() + timeOffset * 60 * 1000);
