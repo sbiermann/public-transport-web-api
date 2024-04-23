@@ -1,71 +1,15 @@
 package com.ems.publictransport.util;
 
-import java.io.UnsupportedEncodingException;
-
+import com.google.common.base.Charsets;
+import de.schildbach.pte.*;
+import okhttp3.HttpUrl;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Service;
 
-import de.schildbach.pte.AbstractNetworkProvider;
-import de.schildbach.pte.AvvAachenProvider;
-import de.schildbach.pte.AvvProvider;
-import de.schildbach.pte.BartProvider;
-import de.schildbach.pte.BayernProvider;
-import de.schildbach.pte.BsvagProvider;
-import de.schildbach.pte.BvgProvider;
-import de.schildbach.pte.CmtaProvider;
-import de.schildbach.pte.CzechRepublicProvider;
-import de.schildbach.pte.DbProvider;
-import de.schildbach.pte.DingProvider;
-import de.schildbach.pte.DsbProvider;
-import de.schildbach.pte.DubProvider;
-import de.schildbach.pte.FinlandProvider;
-import de.schildbach.pte.GvhProvider;
-import de.schildbach.pte.InvgProvider;
-import de.schildbach.pte.ItalyProvider;
-import de.schildbach.pte.KvvProvider;
-import de.schildbach.pte.LinzProvider;
-import de.schildbach.pte.LuProvider;
-import de.schildbach.pte.MerseyProvider;
-import de.schildbach.pte.MvgProvider;
-import de.schildbach.pte.MvvProvider;
-import de.schildbach.pte.NasaProvider;
-import de.schildbach.pte.NetworkId;
-import de.schildbach.pte.NetworkProvider;
-import de.schildbach.pte.NicaraguaProvider;
-import de.schildbach.pte.NsProvider;
-import de.schildbach.pte.NvbwProvider;
-import de.schildbach.pte.NvvProvider;
-import de.schildbach.pte.OebbProvider;
-import de.schildbach.pte.ParisProvider;
-import de.schildbach.pte.RtProvider;
-import de.schildbach.pte.RtaChicagoProvider;
-import de.schildbach.pte.SeProvider;
-import de.schildbach.pte.ShProvider;
-import de.schildbach.pte.SncbProvider;
-import de.schildbach.pte.SpainProvider;
-import de.schildbach.pte.StvProvider;
-import de.schildbach.pte.SydneyProvider;
-import de.schildbach.pte.TfiProvider;
-import de.schildbach.pte.TlemProvider;
-import de.schildbach.pte.VbbProvider;
-import de.schildbach.pte.VblProvider;
-import de.schildbach.pte.VbnProvider;
-import de.schildbach.pte.VgnProvider;
-import de.schildbach.pte.VmtProvider;
-import de.schildbach.pte.VmvProvider;
-import de.schildbach.pte.VrnProvider;
-import de.schildbach.pte.VrrProvider;
-import de.schildbach.pte.VrsProvider;
-import de.schildbach.pte.VvmProvider;
-import de.schildbach.pte.VvoProvider;
-import de.schildbach.pte.VvsProvider;
-import de.schildbach.pte.VvvProvider;
-import de.schildbach.pte.WienProvider;
-import de.schildbach.pte.ZvvProvider;
-import okhttp3.HttpUrl;
+import java.io.UnsupportedEncodingException;
 
 
 @Service
@@ -116,118 +60,117 @@ public class ProviderUtil
 
 	private AbstractNetworkProvider foundForId( NetworkId networkId ) throws UnsupportedEncodingException
 	{
-		if( networkId.equals( NetworkId.RT ) )
+		if (networkId.equals(NetworkId.RT))
 			return new RtProvider();
-		else if( networkId.equals( NetworkId.DB ) )
-			return new DbProvider( providerKeysConfiguration.getBahn(), "bdI8UVj40K5fvxwf".getBytes( "UTF-8" ) );
-		else if( networkId.equals( NetworkId.BVG ) )
-			return new BvgProvider( providerKeysConfiguration.getBvg() );
-		else if( networkId.equals( NetworkId.VBB ) )
-			return new VbbProvider( providerKeysConfiguration.getVbb(), "RCTJM2fFxFfxxQfI".getBytes( "UTF-8" ) );
-		else if( networkId.equals( NetworkId.NVV ) )
-			return new NvvProvider( providerKeysConfiguration.getNvv() );
-		else if( networkId.equals( NetworkId.BAYERN ) )
+		else if (networkId.equals(NetworkId.DB))
+			return new DbProvider("{\"type\":\"AID\",\"aid\":\"n91dB8Z77MLdoR0K\"}",
+					"bdI8UVj40K5fvxwf".getBytes(Charsets.UTF_8));
+		else if (networkId.equals(NetworkId.BVG))
+			return new BvgProvider("{\"aid\":\"1Rxs112shyHLatUX4fofnmdxK\",\"type\":\"AID\"}");
+		else if (networkId.equals(NetworkId.VBB))
+			return new VbbProvider("{\"type\":\"AID\",\"aid\":\"hafas-vbb-apps\"}",
+					"RCTJM2fFxFfxxQfI".getBytes(Charsets.UTF_8));
+		else if (networkId.equals(NetworkId.NVV))
+			return new NvvProvider("{\"type\":\"AID\",\"aid\":\"Kt8eNOH7qjVeSxNA\"}");
+		else if (networkId.equals(NetworkId.BAYERN))
 			return new BayernProvider();
-		else if( networkId.equals( NetworkId.MVV ) )
+		else if (networkId.equals(NetworkId.MVV))
 			return new MvvProvider();
-		else if( networkId.equals( NetworkId.INVG ) )
-			return new InvgProvider( providerKeysConfiguration.getInvg(), "ERxotxpwFT7uYRsI".getBytes( "UTF-8" ) );
-		else if( networkId.equals( NetworkId.AVV ) )
-			return new AvvProvider();
-		else if( networkId.equals( NetworkId.VGN ) )
-			return new VgnProvider( HttpUrl.parse( providerKeysConfiguration.getVgn() ) );
-		else if( networkId.equals( NetworkId.VVM ) )
+		else if (networkId.equals(NetworkId.INVG))
+			return new InvgProvider("{\"type\":\"AID\",\"aid\":\"GITvwi3BGOmTQ2a5\"}",
+					"ERxotxpwFT7uYRsI".getBytes(Charsets.UTF_8));
+		else if (networkId.equals(NetworkId.AVV_AUGSBURG))
+			return new AvvAugsburgProvider("{\"type\":\"AID\",\"aid\":\"jK91AVVZU77xY5oH\"}");
+		else if (networkId.equals(NetworkId.VGN))
+			return new VgnProvider(HttpUrl.parse("https://efa.vgn.de/vgnExt_oeffi/"));
+		else if (networkId.equals(NetworkId.VVM))
 			return new VvmProvider();
-		else if( networkId.equals( NetworkId.VMV ) )
+		else if (networkId.equals(NetworkId.VMV))
 			return new VmvProvider();
-		else if( networkId.equals( NetworkId.SH ) )
-			return new ShProvider( providerKeysConfiguration.getSh() );
-		else if( networkId.equals( NetworkId.GVH ) )
-			return new GvhProvider( HttpUrl.parse( providerKeysConfiguration.getGvh() ) );
-		else if( networkId.equals( NetworkId.BSVAG ) )
+		else if (networkId.equals(NetworkId.SH))
+			return new ShProvider("{\"aid\":\"r0Ot9FLFNAFxijLW\",\"type\":\"AID\"}");
+		else if (networkId.equals(NetworkId.GVH))
+			return new GvhProvider();
+		else if (networkId.equals(NetworkId.BSVAG))
 			return new BsvagProvider();
-		else if( networkId.equals( NetworkId.VBN ) )
-			return new VbnProvider( providerKeysConfiguration.getVbn(), "SP31mBufSyCLmNxp".getBytes( "UTF-8" ) );
-		else if( networkId.equals( NetworkId.NASA ) )
-			return new NasaProvider( providerKeysConfiguration.getNasa() );
-		else if( networkId.equals( NetworkId.VMT ) )
-			return new VmtProvider( providerKeysConfiguration.getVmt() );
-		else if( networkId.equals( NetworkId.VVO ) )
-			return new VvoProvider( HttpUrl.parse( providerKeysConfiguration.getVvo() ) );
-		else if( networkId.equals( NetworkId.VRR ) )
+		else if (networkId.equals(NetworkId.VBN))
+			return new VbnProvider("{\"aid\":\"rnOHBWhesvc7gFkd\",\"type\":\"AID\"}",
+					"SP31mBufSyCLmNxp".getBytes(Charsets.UTF_8));
+		else if (networkId.equals(NetworkId.NASA))
+			return new NasaProvider("{\"type\":\"AID\",\"aid\":\"nasa-apps\"}");
+		else if (networkId.equals(NetworkId.VMT))
+			return new VmtProvider("{\"aid\":\"vj5d7i3g9m5d7e3\",\"type\":\"AID\"}");
+		else if (networkId.equals(NetworkId.VVO))
+			return new VvoProvider(HttpUrl.parse("https://efa.vvo-online.de/Oeffi/"));
+		else if (networkId.equals(NetworkId.VRR))
 			return new VrrProvider();
-		else if( networkId.equals( NetworkId.VRS ) )
-			return new VrsProvider( VRS_CLIENT_CERTIFICATE );
-		else if( networkId.equals( NetworkId.AVV_AACHEN ) )
-			return new AvvAachenProvider( "{\"id\":\"AVV_AACHEN\",\"l\":\"vs_oeffi\",\"type\":\"WEB\"}",
-					providerKeysConfiguration.getAvvaachen() );
-		else if( networkId.equals( NetworkId.MVG ) )
+		else if (networkId.equals(NetworkId.VRS))
+			return new VrsProvider(VRS_CLIENT_CERTIFICATE);
+		else if (networkId.equals(NetworkId.AVV_AACHEN))
+			return new AvvAachenProvider("{\"id\":\"AVV_AACHEN\",\"l\":\"vs_oeffi\",\"type\":\"WEB\"}",
+					"{\"type\":\"AID\",\"aid\":\"4vV1AcH3N511icH\"}");
+		else if (networkId.equals(NetworkId.MVG))
 			return new MvgProvider();
-		else if( networkId.equals( NetworkId.VRN ) )
+		else if (networkId.equals(NetworkId.VRN))
 			return new VrnProvider();
-		else if( networkId.equals( NetworkId.VVS ) )
-			return new VvsProvider( HttpUrl.parse( providerKeysConfiguration.getVvs() ) );
-		else if( networkId.equals( NetworkId.DING ) )
+		else if (networkId.equals(NetworkId.VVS))
+			return new VvsProvider(HttpUrl.parse("https://www2.vvs.de/oeffi/"));
+		else if (networkId.equals(NetworkId.DING))
 			return new DingProvider();
-		else if( networkId.equals( NetworkId.KVV ) )
-			return new KvvProvider( HttpUrl.parse( providerKeysConfiguration.getKvv() ) );
-		else if( networkId.equals( NetworkId.NVBW ) )
+		else if (networkId.equals(NetworkId.KVV))
+			return new KvvProvider(HttpUrl.parse("https://projekte.kvv-efa.de/oeffi/"));
+		else if (networkId.equals(NetworkId.NVBW))
 			return new NvbwProvider();
-		else if( networkId.equals( NetworkId.VVV ) )
+		else if (networkId.equals(NetworkId.VVV))
 			return new VvvProvider();
-		else if( networkId.equals( NetworkId.OEBB ) )
-			return new OebbProvider( providerKeysConfiguration.getOebb() );
-		else if( networkId.equals( NetworkId.WIEN ) )
+		else if (networkId.equals(NetworkId.OEBB))
+			return new OebbProvider("{\"type\":\"AID\",\"aid\":\"OWDL4fE4ixNiPBBm\"}");
+		else if (networkId.equals(NetworkId.WIEN))
 			return new WienProvider();
-		else if( networkId.equals( NetworkId.LINZ ) )
+		else if (networkId.equals(NetworkId.LINZ))
 			return new LinzProvider();
-		else if( networkId.equals( NetworkId.STV ) )
+		else if (networkId.equals(NetworkId.STV))
 			return new StvProvider();
-		else if( networkId.equals( NetworkId.CZECH_REPUBLIC ) )
-			return new CzechRepublicProvider( providerKeysConfiguration.getNavitia() );
-		else if( networkId.equals( NetworkId.VBL ) )
+		else if (networkId.equals(NetworkId.CZECH_REPUBLIC))
+			return new CzechRepublicProvider(providerKeysConfiguration.getNavitia());
+		else if (networkId.equals(NetworkId.VBL))
 			return new VblProvider();
-		else if( networkId.equals( NetworkId.ZVV ) )
-			return new ZvvProvider( providerKeysConfiguration.getZvv() );
-		else if( networkId.equals( NetworkId.IT ) )
-			return new ItalyProvider( providerKeysConfiguration.getNavitia() );
-		else if( networkId.equals( NetworkId.PARIS ) )
-			return new ParisProvider( providerKeysConfiguration.getNavitia() );
-		else if( networkId.equals( NetworkId.SPAIN ) )
-			return new SpainProvider( providerKeysConfiguration.getNavitia() );
-		else if( networkId.equals( NetworkId.SNCB ) )
-			return new SncbProvider( providerKeysConfiguration.getSncb() );
-		else if( networkId.equals( NetworkId.LU ) )
-			return new LuProvider( providerKeysConfiguration.getLu() );
-		else if( networkId.equals( NetworkId.NS ) )
+		else if (networkId.equals(NetworkId.ZVV))
+			return new ZvvProvider("{\"type\":\"AID\",\"aid\":\"hf7mcf9bv3nv8g5f\"}");
+		else if (networkId.equals(NetworkId.IT))
+			return new ItalyProvider(providerKeysConfiguration.getNavitia());
+		else if (networkId.equals(NetworkId.PARIS))
+			return new ParisProvider(providerKeysConfiguration.getNavitia());
+		else if (networkId.equals(NetworkId.SPAIN))
+			return new SpainProvider(providerKeysConfiguration.getNavitia());
+		else if (networkId.equals(NetworkId.LU))
+			return new LuProvider("{\"type\":\"AID\",\"aid\":\"SkC81GuwuzL4e0\"}");
+		else if (networkId.equals(NetworkId.NS))
 			return new NsProvider();
-		else if( networkId.equals( NetworkId.DSB ) )
-			return new DsbProvider( providerKeysConfiguration.getDsb() );
-		else if( networkId.equals( NetworkId.SE ) )
-			return new SeProvider( providerKeysConfiguration.getSe() );
-		else if( networkId.equals( NetworkId.FINLAND ) )
-			return new FinlandProvider( providerKeysConfiguration.getNavitia() );
-		else if( networkId.equals( NetworkId.TLEM ) )
+		else if (networkId.equals(NetworkId.DSB))
+			return new DsbProvider("{\"type\":\"AID\",\"aid\":\"irkmpm9mdznstenr-android\"}");
+		else if (networkId.equals(NetworkId.SE))
+			return new SeProvider("{\"type\":\"AID\",\"aid\":\"h5o3n7f4t2m8l9x1\"}");
+		else if (networkId.equals(NetworkId.FINLAND))
+			return new FinlandProvider(providerKeysConfiguration.getNavitia());
+		else if (networkId.equals(NetworkId.TLEM))
 			return new TlemProvider();
-		else if( networkId.equals( NetworkId.MERSEY ) )
+		else if (networkId.equals(NetworkId.MERSEY))
 			return new MerseyProvider();
-		else if( networkId.equals( NetworkId.TFI ) )
-			return new TfiProvider();
-		else if( networkId.equals( NetworkId.DUB ) )
+		else if (networkId.equals(NetworkId.DUB))
 			return new DubProvider();
-		else if( networkId.equals( NetworkId.BART ) )
-			return new BartProvider( providerKeysConfiguration.getBart() );
-		else if( networkId.equals( NetworkId.RTACHICAGO ) )
+		else if (networkId.equals(NetworkId.BART))
+			return new BartProvider("{\"type\":\"AID\",\"aid\":\"kEwHkFUCIL500dym\"}");
+		else if (networkId.equals(NetworkId.RTACHICAGO))
 			return new RtaChicagoProvider();
-		else if( networkId.equals( NetworkId.CMTA ) )
-			return new CmtaProvider( providerKeysConfiguration.getCmta() );
-		else if( networkId.equals( NetworkId.SYDNEY ) )
+		else if (networkId.equals(NetworkId.CMTA))
+			return new CmtaProvider("{\"type\":\"AID\",\"aid\":\"web9j2nak29uz41irb\"}");
+		else if (networkId.equals(NetworkId.SYDNEY))
 			return new SydneyProvider();
-		else if( networkId.equals( NetworkId.NICARAGUA ) )
-			return new NicaraguaProvider( providerKeysConfiguration.getNavitia() );
+		else if (networkId.equals(NetworkId.NICARAGUA))
+			return new NicaraguaProvider(providerKeysConfiguration.getNavitia());
 		else
-			throw new IllegalArgumentException( networkId.name() );
-
+			throw new IllegalArgumentException(networkId.name());
 	}
 
 }
