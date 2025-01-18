@@ -13,7 +13,9 @@ spring:
       name: ${app.actuator.username}
       password: ${app.actuator.password}
       roles: ENDPOINT_ADMIN
-
+  threads:
+    virtual:
+      enabled: true
 
 server:
   shutdown: "graceful"
