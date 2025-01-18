@@ -1,6 +1,5 @@
 package com.ems.publictransport.util;
 
-import com.google.common.base.Charsets;
 import de.schildbach.pte.*;
 import okhttp3.HttpUrl;
 import org.apache.tomcat.util.codec.binary.Base64;
@@ -10,6 +9,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.stereotype.Service;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 
 @Service
@@ -63,13 +63,12 @@ public class ProviderUtil
 		if (networkId.equals(NetworkId.RT))
 			return new RtProvider();
 		else if (networkId.equals(NetworkId.DB))
-			return new DbProvider("{\"type\":\"AID\",\"aid\":\"n91dB8Z77MLdoR0K\"}",
-					"bdI8UVj40K5fvxwf".getBytes(Charsets.UTF_8));
+			return new DbProvider();
 		else if (networkId.equals(NetworkId.BVG))
 			return new BvgProvider("{\"aid\":\"1Rxs112shyHLatUX4fofnmdxK\",\"type\":\"AID\"}");
 		else if (networkId.equals(NetworkId.VBB))
 			return new VbbProvider("{\"type\":\"AID\",\"aid\":\"hafas-vbb-apps\"}",
-					"RCTJM2fFxFfxxQfI".getBytes(Charsets.UTF_8));
+					"RCTJM2fFxFfxxQfI".getBytes(StandardCharsets.UTF_8));
 		else if (networkId.equals(NetworkId.NVV))
 			return new NvvProvider("{\"type\":\"AID\",\"aid\":\"Kt8eNOH7qjVeSxNA\"}");
 		else if (networkId.equals(NetworkId.BAYERN))
@@ -78,7 +77,7 @@ public class ProviderUtil
 			return new MvvProvider();
 		else if (networkId.equals(NetworkId.INVG))
 			return new InvgProvider("{\"type\":\"AID\",\"aid\":\"GITvwi3BGOmTQ2a5\"}",
-					"ERxotxpwFT7uYRsI".getBytes(Charsets.UTF_8));
+					"ERxotxpwFT7uYRsI".getBytes(StandardCharsets.UTF_8));
 		else if (networkId.equals(NetworkId.AVV_AUGSBURG))
 			return new AvvAugsburgProvider("{\"type\":\"AID\",\"aid\":\"jK91AVVZU77xY5oH\"}");
 		else if (networkId.equals(NetworkId.VGN))
@@ -95,7 +94,7 @@ public class ProviderUtil
 			return new BsvagProvider();
 		else if (networkId.equals(NetworkId.VBN))
 			return new VbnProvider("{\"aid\":\"rnOHBWhesvc7gFkd\",\"type\":\"AID\"}",
-					"SP31mBufSyCLmNxp".getBytes(Charsets.UTF_8));
+					"SP31mBufSyCLmNxp".getBytes(StandardCharsets.UTF_8));
 		else if (networkId.equals(NetworkId.NASA))
 			return new NasaProvider("{\"type\":\"AID\",\"aid\":\"nasa-apps\"}");
 		else if (networkId.equals(NetworkId.VMT))
@@ -131,18 +130,10 @@ public class ProviderUtil
 			return new LinzProvider();
 		else if (networkId.equals(NetworkId.STV))
 			return new StvProvider();
-		else if (networkId.equals(NetworkId.CZECH_REPUBLIC))
-			return new CzechRepublicProvider(providerKeysConfiguration.getNavitia());
 		else if (networkId.equals(NetworkId.VBL))
 			return new VblProvider();
 		else if (networkId.equals(NetworkId.ZVV))
 			return new ZvvProvider("{\"type\":\"AID\",\"aid\":\"hf7mcf9bv3nv8g5f\"}");
-		else if (networkId.equals(NetworkId.IT))
-			return new ItalyProvider(providerKeysConfiguration.getNavitia());
-		else if (networkId.equals(NetworkId.PARIS))
-			return new ParisProvider(providerKeysConfiguration.getNavitia());
-		else if (networkId.equals(NetworkId.SPAIN))
-			return new SpainProvider(providerKeysConfiguration.getNavitia());
 		else if (networkId.equals(NetworkId.LU))
 			return new LuProvider("{\"type\":\"AID\",\"aid\":\"SkC81GuwuzL4e0\"}");
 		else if (networkId.equals(NetworkId.NS))
@@ -151,8 +142,6 @@ public class ProviderUtil
 			return new DsbProvider("{\"type\":\"AID\",\"aid\":\"irkmpm9mdznstenr-android\"}");
 		else if (networkId.equals(NetworkId.SE))
 			return new SeProvider("{\"type\":\"AID\",\"aid\":\"h5o3n7f4t2m8l9x1\"}");
-		else if (networkId.equals(NetworkId.FINLAND))
-			return new FinlandProvider(providerKeysConfiguration.getNavitia());
 		else if (networkId.equals(NetworkId.TLEM))
 			return new TlemProvider();
 		else if (networkId.equals(NetworkId.MERSEY))
@@ -167,10 +156,9 @@ public class ProviderUtil
 			return new CmtaProvider("{\"type\":\"AID\",\"aid\":\"web9j2nak29uz41irb\"}");
 		else if (networkId.equals(NetworkId.SYDNEY))
 			return new SydneyProvider();
-		else if (networkId.equals(NetworkId.NICARAGUA))
-			return new NicaraguaProvider(providerKeysConfiguration.getNavitia());
 		else
 			throw new IllegalArgumentException(networkId.name());
+
 	}
 
 }

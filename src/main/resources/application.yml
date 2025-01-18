@@ -72,3 +72,12 @@ provider:
     bart: "{\"type\":\"AID\",\"aid\":\"kEwHkFUCIL500dym\"}"
     cmta: "{\"type\":\"AID\",\"aid\":\"web9j2nak29uz41irb\"}"
 
+---
+spring:
+    security:
+      user:
+        name: user
+        password: password
+    config:
+      activate:
+        on-profile: dev
