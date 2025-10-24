@@ -1,4 +1,4 @@
-FROM ibm-semeru-runtimes:open-21.0.5_11-jre-focal
+FROM ibm-semeru-runtimes:open-25-jre-jammy
 
 RUN useradd -u 2000 nonroot -g 65534
 
